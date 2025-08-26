@@ -110,6 +110,6 @@ def generate_launch_description():
             spawn,
             gazebo,
             bridge,
-            rviz2_node,
+            # rviz2_node,
         ]
     )
