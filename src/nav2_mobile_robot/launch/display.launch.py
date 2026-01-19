@@ -1,11 +1,21 @@
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import Command, PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
-from launch.substitutions import Command
-from launch.substitutions import PathJoinSubstitution
 from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    # ===== Launch argument =====
+    use_sim_time = LaunchConfiguration("use_sim_time")
+
+    declare_use_sim_time = DeclareLaunchArgument(
+        "use_sim_time",
+        default_value="true",
+        description="Use simulation (Gazebo) clock if true"
+    )
+
+    # ===== Robot description =====
     xacro_path = "nav2_mobile_robot.xacro"
 
     robot_description = PathJoinSubstitution(
@@ -17,15 +27,15 @@ def generate_launch_description():
         executable="robot_state_publisher",
         name="robot_state_publisher",
         output="screen",
-        parameters=[{"robot_description": Command(["xacro ", robot_description])}],
+        parameters=[
+            {
+                "robot_description": Command(["xacro ", robot_description]),
+                "use_sim_time": use_sim_time,
+            }
+        ],
     )
 
-    joint_state_publisher_gui = Node(
-        package="joint_state_publisher_gui",
-        executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui",
-        output="screen",
-    )
+    # ===== RViz =====
     rviz_file = "rviz.rviz"
     rviz_path = PathJoinSubstitution(
         [get_package_share_directory("nav2_mobile_robot"), rviz_file]
@@ -37,8 +47,13 @@ def generate_launch_description():
         name="rviz2",
         output="screen",
         arguments=["-d", rviz_path],
+        parameters=[{"use_sim_time": use_sim_time}],
     )
 
     return LaunchDescription(
-        [robot_state_publisher_node, joint_state_publisher_gui, rviz2_node]
+        [
+            declare_use_sim_time,
+            robot_state_publisher_node,
+            rviz2_node,
+        ]
     )
