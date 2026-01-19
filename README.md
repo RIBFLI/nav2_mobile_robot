@@ -9,7 +9,7 @@ This project implements a differential drive mobile robot in simulation using RO
 
 # Tools & Technologies
 
-- ROS 2 (Jazzy/Humble)
+- ROS 2 (Jazzy)
 - Gazebo Harmonic
 - Python
 - SLAM Toolbox for mapping
